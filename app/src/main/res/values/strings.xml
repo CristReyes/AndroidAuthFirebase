@@ -1,0 +1,8 @@
+<resources>
+    <string name="app_name">Foro_2</string>
+
+    <!-- Clave para Google Sign-In -->
+    <string name="default_web_client_id">
+        363781663770-ecktij3d6nqf84t3deeouib785u06np0.apps.googleusercontent.com
+    </string>
+</resources>

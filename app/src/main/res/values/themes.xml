@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <!-- Tema que ahora sí funciona con AppCompatActivity -->
+    <style name="Theme.Foro_2" parent="Theme.AppCompat.Light.NoActionBar">
+        <!-- Puedes personalizar colores si deseas -->
+        <item name="colorPrimary">@color/purple_500</item>
+        <item name="colorPrimaryDark">@color/purple_700</item>
+        <item name="colorAccent">@color/teal_200</item>
+    </style>
+
+</resources>
