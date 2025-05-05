@@ -1,41 +1,41 @@
 {
   "project_info": {
-    "project_number": "363781663770",
-    "project_id": "foro2-1d60b",
-    "storage_bucket": "foro2-1d60b.firebasestorage.app"
+    "project_number": "824244331292",
+    "project_id": "kotlin-authentication-2025",
+    "storage_bucket": "kotlin-authentication-2025.firebasestorage.app"
   },
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:363781663770:android:4e21f8f47e5c6b795375a3",
+        "mobilesdk_app_id": "1:824244331292:android:043de658eca81e6f3310d9",
         "android_client_info": {
           "package_name": "com.foro_2"
         }
       },
       "oauth_client": [
         {
-          "client_id": "363781663770-ecktij3d6nqf84t3deeouib785u06np0.apps.googleusercontent.com",
+          "client_id": "824244331292-fh8uvrkglffajlji7jbh7emurih9tdfh.apps.googleusercontent.com",
           "client_type": 1,
           "android_info": {
             "package_name": "com.foro_2",
-            "certificate_hash": "366f00c78e48fb95df8bf89c102a3d86e5d4c11f"
+            "certificate_hash": "59fb6db4817d20335910fa1af680913cde46e412"
           }
         },
         {
-          "client_id": "363781663770-96b38rj5tt6e8uqqo676jrjnltts4je3.apps.googleusercontent.com",
+          "client_id": "824244331292-v6bn0kde3njpjplj5g6jt1mijvhtdgfb.apps.googleusercontent.com",
           "client_type": 3
         }
       ],
       "api_key": [
         {
-          "current_key": "AIzaSyBipO1wGJKFgBzv3pJ4wRCyQqyb4-KefCQ"
+          "current_key": "AIzaSyDNPYOBoZoyWQn2ZsXE_JGbTwyvjspuYLA"
         }
       ],
       "services": {
         "appinvite_service": {
           "other_platform_oauth_client": [
             {
-              "client_id": "363781663770-96b38rj5tt6e8uqqo676jrjnltts4je3.apps.googleusercontent.com",
+              "client_id": "824244331292-v6bn0kde3njpjplj5g6jt1mijvhtdgfb.apps.googleusercontent.com",
               "client_type": 3
             }
           ]

@@ -1,21 +1,22 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:gravity="center"
     android:orientation="vertical"
-    android:padding="24dp"
-    android:gravity="center">
+    android:padding="16dp">
 
     <EditText
-        android:id="@+id/emailEditText"
+        android:id="@+id/newEmail"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:fontFamily="sans-serif"
-        android:hint="Correo electrónico"
+        android:hint="Email"
         android:inputType="textEmailAddress" />
 
     <EditText
-        android:id="@+id/passwordEditText"
+        android:id="@+id/newPass"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="8dp"
@@ -24,26 +25,20 @@
         android:inputType="textPassword" />
 
     <Button
-        android:id="@+id/loginButton"
+        android:id="@+id/newRegisterButton"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="16dp"
         android:fontFamily="sans-serif-black"
-        android:text="Iniciar sesión" />
-
-    <com.google.android.gms.common.SignInButton
-        android:id="@+id/googleSignInButton"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="16dp" />
+        android:text="Registrarse" />
 
     <TextView
-        android:id="@+id/notUserYet"
+        android:id="@+id/alreadyUser"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="16dp"
+        android:layout_marginTop="32px"
         android:fontFamily="sans-serif"
-        android:text="¿Sin cuenta?, Registrate"
+        android:text="¿Ya tienes cuenta?, inicia sesión"
         android:textAlignment="center" />
 
 </LinearLayout>

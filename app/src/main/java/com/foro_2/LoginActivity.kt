@@ -7,6 +7,8 @@ import android.widget.Button
 import android.widget.EditText
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
+import com.foro_2.databinding.ActivityLoginBinding
+import com.foro_2.databinding.ActivityRegisterBinding
 import com.google.android.gms.auth.api.signin.GoogleSignIn
 import com.google.android.gms.auth.api.signin.GoogleSignInClient
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions
@@ -14,15 +16,39 @@ import com.google.android.gms.common.SignInButton
 import com.google.android.gms.common.api.ApiException
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.GoogleAuthProvider
+import android.util.Log
+
 
 class LoginActivity : AppCompatActivity() {
 
     private lateinit var googleSignInClient: GoogleSignInClient
     private val RC_SIGN_IN = 9001
 
+    private lateinit var binding:ActivityLoginBinding
+    private lateinit var firebaseAuth: FirebaseAuth
+
     override fun onCreate(savedInstanceState: Bundle?) {
+
+        firebaseAuth = FirebaseAuth.getInstance();
+
+        /*
+        binding.signIn.setOnClickListener{
+            startActivity(Intent(this, RegisterAc))
+
+        }
+        */
+
+
+
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_login)
+        binding = ActivityLoginBinding.inflate(layoutInflater)
+        setContentView(binding.root)
+
+
+        binding.notUserYet.setOnClickListener{
+            val intent = Intent(this, RegisterActivity::class.java)
+            startActivity(intent)
+        }
 
         // Configuración para el inicio de sesión con Google
         val gso = GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
@@ -34,11 +60,11 @@ class LoginActivity : AppCompatActivity() {
         // Referencias a los elementos del layout XML
         val emailEditText = findViewById<EditText>(R.id.emailEditText)
         val passwordEditText = findViewById<EditText>(R.id.passwordEditText)
-        val loginButton = findViewById<Button>(R.id.loginButton)
+        //val loginButton = findViewById<Button>(R.id.loginButton)
         val googleSignInButton = findViewById<SignInButton>(R.id.googleSignInButton)
 
         // Acción del botón de login tradicional
-        loginButton.setOnClickListener {
+        binding.loginButton.setOnClickListener {
             val email = emailEditText.text.toString().trim()
             val password = passwordEditText.text.toString().trim()
 
@@ -53,7 +79,17 @@ class LoginActivity : AppCompatActivity() {
             }
 
             // Validación aprobada, acceso permitido
-            goToHome()
+            firebaseAuth.signInWithEmailAndPassword(email, password).addOnCompleteListener { task ->
+                if (task.isSuccessful) {
+                    Log.d("LoginActivity", "Inicio de sesión exitoso")
+                    val intent = Intent(this, HomeActivity::class.java)
+                    startActivity(intent)
+                } else {
+                    Log.e("LoginActivity", "Error en login", task.exception)
+                    Toast.makeText(this, task.exception?.localizedMessage ?: "Error desconocido", Toast.LENGTH_SHORT).show()
+                }
+            }
+
         }
 
         // Acción del botón de Google Sign-In

@@ -18,6 +18,13 @@
         android:theme="@style/Theme.AppCompat.Light.NoActionBar"
         tools:targetApi="31">
 
+        <!-- Registro -->
+        <activity
+            android:name=".RegisterActivity"
+            android:exported="true"
+            android:screenOrientation="portrait"
+            tools:ignore="LockedOrientationActivity" />
+
         <!-- LoginActivity como pantalla de inicio -->
         <activity
             android:name=".LoginActivity"
@@ -31,7 +38,7 @@
         <!-- HomeActivity con mismo tema heredado del <application> -->
         <activity
             android:name=".HomeActivity"
-            android:exported="false" />
+            android:exported="true" />
 
     </application>
 </manifest>

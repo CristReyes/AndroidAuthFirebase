@@ -8,9 +8,16 @@
 
     <TextView
         android:id="@+id/welcomeText"
-        android:text="¡Has ingresado!"
-        android:textSize="24sp"
-        android:textStyle="bold"
         android:layout_width="wrap_content"
-        android:layout_height="wrap_content" />
+        android:layout_height="46dp"
+        android:text="¡Sesión iniciada correctamente!"
+        android:textSize="24sp"
+        android:textStyle="bold" />
+
+    <Button
+        android:id="@+id/signOutButton"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="32px"
+        android:text="Cerrar Sesión" />
 </LinearLayout>

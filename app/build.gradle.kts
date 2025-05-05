@@ -40,6 +40,7 @@ android {
 
     buildFeatures {
         compose = true
+        viewBinding = true
     }
 }
 
@@ -56,17 +57,18 @@ dependencies {
     implementation(libs.firebase.auth)
     implementation(libs.play.services.auth)
     implementation(libs.appcompat)
+    implementation(libs.google.firebase.auth)
 
     // Firebase Auth 🔥
     dependencies {
         // Firebase Auth (última versión estable)
-        implementation("com.google.firebase:firebase-auth-ktx:23.2.0")
+        implementation(libs.firebase.auth.ktx.v2320)
 
         // Google Sign-In
-        implementation("com.google.android.gms:play-services-auth:21.3.0")
+        implementation(libs.play.services.auth.v2130)
 
         // AppCompat
-        implementation("androidx.appcompat:appcompat:1.7.0")
+        implementation(libs.androidx.appcompat.v170)
     }
 
 
