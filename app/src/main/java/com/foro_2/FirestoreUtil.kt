@@ -12,6 +12,22 @@ object FirestoreUtil {
         docRef.set(event).addOnSuccessListener { onSuccess() }.addOnFailureListener { onFailure(it) }
     }
 
+    fun deleteEvent(eventId: String, onSuccess: () -> Unit, onFailure: (Exception) -> Unit) {
+        eventsCollection.document(eventId)
+            .delete()
+            .addOnSuccessListener { onSuccess() }
+            .addOnFailureListener { onFailure(it) }
+    }
+
+    fun getEventById(eventId: String, onResult: (Event?) -> Unit) {
+        eventsCollection.document(eventId)
+            .get()
+            .addOnSuccessListener { snapshot ->
+                val event = snapshot.toObject(Event::class.java)
+                onResult(event)
+            }
+    }
+
     fun getAllEvents(onResult: (List<Event>) -> Unit) {
         eventsCollection.get().addOnSuccessListener { snapshot ->
             val events = snapshot.documents.mapNotNull { it.toObject(Event::class.java) }
