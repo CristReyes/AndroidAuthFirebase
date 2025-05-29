@@ -40,5 +40,8 @@
             android:name=".HomeActivity"
             android:exported="true" />
 
+        <activity android:name=".CreateEventActivity" />
+        <activity android:name=".ViewEventsActivity" />
+
     </application>
 </manifest>

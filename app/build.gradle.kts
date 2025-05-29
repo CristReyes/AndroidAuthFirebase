@@ -2,7 +2,7 @@ plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
     alias(libs.plugins.kotlin.compose)
-    id("com.google.gms.google-services") // 🔹 Plugin de Firebase
+    id("com.google.gms.google-services")
 }
 
 android {
@@ -15,7 +15,6 @@ android {
         targetSdk = 35
         versionCode = 1
         versionName = "1.0"
-
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
 
@@ -54,24 +53,18 @@ dependencies {
     implementation(libs.androidx.ui.graphics)
     implementation(libs.androidx.ui.tooling.preview)
     implementation(libs.androidx.material3)
-    implementation(libs.firebase.auth)
-    implementation(libs.play.services.auth)
-    implementation(libs.appcompat)
-    implementation(libs.google.firebase.auth)
 
-    // Firebase Auth 🔥
-    dependencies {
-        // Firebase Auth (última versión estable)
-        implementation(libs.firebase.auth.ktx.v2320)
+    // Firebase
+    implementation(libs.firebase.auth.ktx.v2320)
+    implementation(libs.firebase.firestore.ktx)
+    implementation(libs.play.services.auth.v2130)
 
-        // Google Sign-In
-        implementation(libs.play.services.auth.v2130)
+    // Compatibilidad
+    implementation(libs.androidx.appcompat.v170)
+    implementation(libs.androidx.cardview)
 
-        // AppCompat
-        implementation(libs.androidx.appcompat.v170)
-    }
-
-
+    // Librerías externas
+    implementation(libs.mpandroidchart)
 
     // Testing
     testImplementation(libs.junit)
