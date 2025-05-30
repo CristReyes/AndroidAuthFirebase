@@ -3,6 +3,7 @@ package com.foro_2
 import android.content.Intent
 import android.graphics.Color
 import android.os.Bundle
+import android.util.Log
 import android.widget.Button
 import android.widget.LinearLayout
 import android.widget.TextView
@@ -15,6 +16,8 @@ import com.github.mikephil.charting.data.PieDataSet
 import com.github.mikephil.charting.data.PieEntry
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.firestore.ListenerRegistration
+import com.google.firebase.firestore.QueryDocumentSnapshot
 
 class HomeActivity : AppCompatActivity() {
 
@@ -22,6 +25,8 @@ class HomeActivity : AppCompatActivity() {
     private lateinit var firebaseAuth: FirebaseAuth
     private lateinit var userEventsContainer: LinearLayout
     private val db = FirebaseFirestore.getInstance()
+    private var eventsListener: ListenerRegistration? = null
+    private val attendeesListeners = mutableListOf<ListenerRegistration>()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -29,12 +34,17 @@ class HomeActivity : AppCompatActivity() {
         setContentView(binding.root)
 
         firebaseAuth = FirebaseAuth.getInstance()
-        val currentUser = firebaseAuth.currentUser
+        userEventsContainer = binding.userEventsContainer
 
-        // Bienvenida personalizada
-        binding.welcomeText.text = "Hola, ${currentUser?.email ?: "Usuario"} 👋"
+        setupUI()
+        loadChartRealtime()
+    }
 
-        // Botones
+    private fun setupUI() {
+        // Configuración de la interfaz de usuario
+        binding.welcomeText.text = "Hola, ${firebaseAuth.currentUser?.email ?: "Usuario"} 👋"
+
+        // Listeners de botones
         binding.btnCreateEvent.setOnClickListener {
             startActivity(Intent(this, CreateEventActivity::class.java))
         }
@@ -48,17 +58,19 @@ class HomeActivity : AppCompatActivity() {
             startActivity(Intent(this, LoginActivity::class.java))
             finish()
         }
-
-        // Cargar gráfico circular
-        loadChartRealtime()
-
-        // Referencia al contenedor de eventos del usuario
-        userEventsContainer = findViewById(R.id.userEventsContainer)
     }
 
     override fun onResume() {
         super.onResume()
         reloadUserEvents()
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        // Limpieza de listeners
+        eventsListener?.remove()
+        attendeesListeners.forEach { it.remove() }
+        attendeesListeners.clear()
     }
 
     private fun reloadUserEvents() {
@@ -68,7 +80,7 @@ class HomeActivity : AppCompatActivity() {
         db.collection("events")
             .get()
             .addOnSuccessListener { eventsSnapshot ->
-                for (eventDoc in eventsSnapshot) {
+                eventsSnapshot.forEach { eventDoc ->
                     val eventId = eventDoc.id
 
                     db.collection("events").document(eventId)
@@ -76,43 +88,70 @@ class HomeActivity : AppCompatActivity() {
                         .get()
                         .addOnSuccessListener { attendeeDoc ->
                             if (attendeeDoc.exists()) {
-                                val title = eventDoc.getString("title") ?: "Evento"
-                                val date = eventDoc.getString("date") ?: "-"
-                                val time = eventDoc.getString("time") ?: "-"
-                                val location = eventDoc.getString("location") ?: "-"
-
-                                val eventView = layoutInflater.inflate(R.layout.event_item_mini, userEventsContainer, false)
-                                eventView.findViewById<TextView>(R.id.tvMiniEventTitle).text = title
-                                eventView.findViewById<TextView>(R.id.tvMiniEventDateTime).text = "$date | $time"
-                                eventView.findViewById<TextView>(R.id.tvMiniEventLocation).text = location
-
-                                val btnCancel = eventView.findViewById<Button>(R.id.btnCancelAttendance)
-                                btnCancel.setOnClickListener {
-                                    AlertDialog.Builder(this)
-                                        .setTitle("Cancelar Asistencia")
-                                        .setMessage("¿Deseas cancelar tu asistencia a \"$title\"?")
-                                        .setPositiveButton("Sí") { _, _ ->
-                                            db.collection("events")
-                                                .document(eventId)
-                                                .collection("attendees")
-                                                .document(user.uid)
-                                                .delete()
-                                                .addOnSuccessListener {
-                                                    Toast.makeText(this, "Asistencia cancelada", Toast.LENGTH_SHORT).show()
-                                                    reloadUserEvents()
-                                                }
-                                                .addOnFailureListener {
-                                                    Toast.makeText(this, "Error al cancelar", Toast.LENGTH_SHORT).show()
-                                                }
-                                        }
-                                        .setNegativeButton("No", null)
-                                        .show()
-                                }
-
-                                userEventsContainer.addView(eventView)
+                                addEventToView(eventDoc, eventId, user.uid)
                             }
                         }
+                        .addOnFailureListener {
+                            Toast.makeText(this, "Error al verificar asistencia", Toast.LENGTH_SHORT).show()
+                        }
                 }
+            }
+            .addOnFailureListener {
+                Toast.makeText(this, "Error al cargar eventos", Toast.LENGTH_SHORT).show()
+            }
+    }
+
+    private fun addEventToView(eventDoc: QueryDocumentSnapshot, eventId: String, userId: String) {
+        try {
+            val eventView = layoutInflater.inflate(R.layout.event_item_simple, userEventsContainer, false)
+
+            // Configuración de las vistas del evento
+            eventView.findViewById<TextView>(R.id.tvEventTitle).text =
+                eventDoc.getString("title") ?: "Evento"
+            eventView.findViewById<TextView>(R.id.tvEventDateTime).text =
+                "${eventDoc.getString("date") ?: "-"} | ${eventDoc.getString("time") ?: "-"}"
+            eventView.findViewById<TextView>(R.id.tvEventLocation).text =
+                eventDoc.getString("location") ?: "-"
+
+            // Listener para cancelar asistencia
+            /*.findViewById<Button>(R.id.btnCancelAttendance).setOnClickListener {
+                showCancelConfirmationDialog(
+                    eventDoc.getString("title") ?: "Evento",
+                    eventId,
+                    userId
+                )
+            }*/
+
+            userEventsContainer.addView(eventView)
+        } catch (e: Exception) {
+            Log.e("HomeActivity", "Error al inflar layout de evento", e)
+            Toast.makeText(this, "Error al mostrar evento", Toast.LENGTH_SHORT).show()
+        }
+    }
+
+    private fun showCancelConfirmationDialog(title: String, eventId: String, userId: String) {
+        AlertDialog.Builder(this)
+            .setTitle("Cancelar Asistencia")
+            .setMessage("¿Deseas cancelar tu asistencia a \"$title\"?")
+            .setPositiveButton("Sí") { _, _ ->
+                cancelAttendance(eventId, userId)
+            }
+            .setNegativeButton("No", null)
+            .show()
+    }
+
+    private fun cancelAttendance(eventId: String, userId: String) {
+        db.collection("events")
+            .document(eventId)
+            .collection("attendees")
+            .document(userId)
+            .delete()
+            .addOnSuccessListener {
+                Toast.makeText(this, "Asistencia cancelada", Toast.LENGTH_SHORT).show()
+                reloadUserEvents()
+            }
+            .addOnFailureListener {
+                Toast.makeText(this, "Error al cancelar asistencia", Toast.LENGTH_SHORT).show()
             }
     }
 
@@ -122,16 +161,15 @@ class HomeActivity : AppCompatActivity() {
             PieEntry(assistances, "Eventos Asistidos")
         )
 
-        val dataSet = PieDataSet(entries, "")
-        dataSet.colors = listOf(Color.parseColor("#4CAF50"), Color.parseColor("#2196F3"))
-        dataSet.sliceSpace = 3f
-        dataSet.valueTextSize = 16f
-        dataSet.valueTextColor = Color.WHITE
-
-        val pieData = PieData(dataSet)
+        val dataSet = PieDataSet(entries, "").apply {
+            colors = listOf(Color.parseColor("#4CAF50"), Color.parseColor("#2196F3"))
+            sliceSpace = 3f
+            valueTextSize = 16f
+            valueTextColor = Color.WHITE
+        }
 
         binding.pieChart.apply {
-            data = pieData
+            data = PieData(dataSet)
             description.isEnabled = false
             isRotationEnabled = false
             centerText = "Participación"
@@ -142,9 +180,13 @@ class HomeActivity : AppCompatActivity() {
         }
     }
 
-
     private fun loadChartRealtime() {
-        db.collection("events").addSnapshotListener { eventsSnapshot, e ->
+        // Limpiar listeners anteriores
+        eventsListener?.remove()
+        attendeesListeners.forEach { it.remove() }
+        attendeesListeners.clear()
+
+        eventsListener = db.collection("events").addSnapshotListener { eventsSnapshot, e ->
             if (e != null || eventsSnapshot == null) {
                 Toast.makeText(this, "Error al cargar eventos", Toast.LENGTH_SHORT).show()
                 setChart(0f, 0f)
@@ -152,26 +194,26 @@ class HomeActivity : AppCompatActivity() {
             }
 
             val totalEvents = eventsSnapshot.size()
-            var totalAssistances = 0
-            var processed = 0
-
             if (totalEvents == 0) {
                 setChart(0f, 0f)
                 return@addSnapshotListener
             }
 
-            for (doc in eventsSnapshot.documents) {
-                doc.reference.collection("attendees").addSnapshotListener { attendeesSnapshot, _ ->
-                    totalAssistances += attendeesSnapshot?.size() ?: 0
-                    processed++
+            var totalAssistances = 0
+            var processed = 0
 
-                    // Espera a que se procesen todos
-                    if (processed == totalEvents) {
-                        setChart(totalEvents.toFloat(), totalAssistances.toFloat())
+            eventsSnapshot.documents.forEach { doc ->
+                val listener = doc.reference.collection("attendees")
+                    .addSnapshotListener { attendeesSnapshot, _ ->
+                        totalAssistances += attendeesSnapshot?.size() ?: 0
+                        processed++
+
+                        if (processed == totalEvents) {
+                            setChart(totalEvents.toFloat(), totalAssistances.toFloat())
+                        }
                     }
-                }
+                attendeesListeners.add(listener)
             }
         }
     }
-
 }
