@@ -6,7 +6,6 @@
     android:background="#F0F2F5"
     android:padding="16dp">
 
-    <!-- Hijo único del ScrollView -->
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -23,14 +22,14 @@
             android:textColor="#333"
             android:layout_marginBottom="16dp" />
 
-        <!-- Gráfico -->
+        <!-- Gráfico de participación -->
         <com.github.mikephil.charting.charts.PieChart
             android:id="@+id/pieChart"
             android:layout_width="match_parent"
             android:layout_height="300dp"
             android:layout_marginBottom="24dp" />
 
-        <!-- Cards de acciones -->
+        <!-- Gestión de Eventos -->
         <androidx.cardview.widget.CardView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -39,10 +38,10 @@
             app:cardElevation="6dp">
 
             <LinearLayout
-                android:orientation="vertical"
-                android:padding="16dp"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content">
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:padding="16dp">
 
                 <TextView
                     android:layout_width="wrap_content"
@@ -67,7 +66,37 @@
             </LinearLayout>
         </androidx.cardview.widget.CardView>
 
-        <!-- Card Cerrar Sesión -->
+        <!-- Mis Eventos -->
+        <androidx.cardview.widget.CardView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="16dp"
+            app:cardCornerRadius="16dp"
+            app:cardElevation="8dp">
+
+            <LinearLayout
+                android:id="@+id/userEventsContainer"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:padding="16dp"
+                android:background="@android:color/white">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="📅 Mis Eventos"
+                    android:textSize="18sp"
+                    android:textStyle="bold"
+                    android:textColor="#333"
+                    android:layout_marginBottom="12dp" />
+
+                <!-- Aquí se insertarán los eventos dinámicamente -->
+
+            </LinearLayout>
+        </androidx.cardview.widget.CardView>
+
+        <!-- Cerrar Sesión -->
         <androidx.cardview.widget.CardView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -75,10 +104,10 @@
             app:cardElevation="6dp">
 
             <LinearLayout
-                android:orientation="vertical"
-                android:padding="16dp"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content">
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:padding="16dp">
 
                 <TextView
                     android:layout_width="wrap_content"
