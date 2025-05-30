@@ -7,27 +7,22 @@ import android.widget.Button
 import android.widget.LinearLayout
 import android.widget.TextView
 import android.widget.Toast
-import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
+import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.firestore.FirebaseFirestore
 
 class ViewEventsActivity : AppCompatActivity() {
 
     private lateinit var container: LinearLayout
-
-    // Launcher para esperar resultado de la edición
-    private val editEventLauncher = registerForActivityResult(
-        ActivityResultContracts.StartActivityForResult()
-    ) {
-        if (it.resultCode == RESULT_OK) {
-            recreate()  // Recargar eventos automáticamente
-        }
-    }
+    private lateinit var auth: FirebaseAuth
+    private val db = FirebaseFirestore.getInstance()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_view_events)
 
         container = findViewById(R.id.eventListContainer)
+        auth = FirebaseAuth.getInstance()
 
         FirestoreUtil.getAllEvents { events ->
             if (events.isEmpty()) {
@@ -44,13 +39,29 @@ class ViewEventsActivity : AppCompatActivity() {
 
                 val btnEdit = view.findViewById<Button>(R.id.btnEditEvent)
                 val btnDelete = view.findViewById<Button>(R.id.btnDeleteEvent)
+                val btnAttend = view.findViewById<Button>(R.id.btnAttendEvent)
+                val tvAttendeeCount = view.findViewById<TextView>(R.id.tvAttendeeCount)
 
+                db.collection("events")
+                    .document(event.id)
+                    .collection("attendees")
+                    .get()
+                    .addOnSuccessListener { snapshot ->
+                        val count = snapshot.size()
+                        tvAttendeeCount.text = "Asistentes: $count"
+                    }
+                    .addOnFailureListener {
+                        tvAttendeeCount.text = "Asistentes: -"
+                    }
+
+                // Botón editar
                 btnEdit.setOnClickListener {
                     val intent = Intent(this, EditEventActivity::class.java)
                     intent.putExtra("EVENT_ID", event.id)
-                    editEventLauncher.launch(intent)
+                    startActivity(intent)
                 }
 
+                // Botón eliminar
                 btnDelete.setOnClickListener {
                     AlertDialog.Builder(this)
                         .setTitle("¿Eliminar evento?")
@@ -58,7 +69,7 @@ class ViewEventsActivity : AppCompatActivity() {
                         .setPositiveButton("Sí") { _, _ ->
                             FirestoreUtil.deleteEvent(event.id, {
                                 Toast.makeText(this, "Evento eliminado", Toast.LENGTH_SHORT).show()
-                                recreate() // ← Recarga la actividad para actualizar la lista
+                                recreate()
                             }, {
                                 Toast.makeText(this, "Error al eliminar", Toast.LENGTH_SHORT).show()
                             })
@@ -66,6 +77,52 @@ class ViewEventsActivity : AppCompatActivity() {
                         .setNegativeButton("Cancelar", null)
                         .show()
                 }
+
+                // Botón asistir
+                btnAttend.setOnClickListener {
+                    val user = auth.currentUser
+                    if (user != null) {
+                        val attendeeRef = db.collection("events")
+                            .document(event.id)
+                            .collection("attendees")
+                            .document(user.uid)
+
+                        attendeeRef.get()
+                            .addOnSuccessListener { document ->
+                                if (document.exists()) {
+                                    Toast.makeText(this, "Ya estás registrado como asistente", Toast.LENGTH_SHORT).show()
+                                } else {
+                                    val attendeeData = mapOf(
+                                        "userId" to user.uid,
+                                        "email" to user.email,
+                                        "timestamp" to System.currentTimeMillis()
+                                    )
+
+                                    attendeeRef.set(attendeeData)
+                                        .addOnSuccessListener {
+                                            Toast.makeText(this, "Te has registrado como asistente ✅", Toast.LENGTH_SHORT).show()
+
+                                            // Actualizar contador
+                                            val currentText = tvAttendeeCount.text.toString()
+                                            val regex = Regex("""\d+""")
+                                            val match = regex.find(currentText)
+                                            val currentCount = match?.value?.toIntOrNull() ?: 0
+                                            val updatedCount = currentCount + 1
+                                            tvAttendeeCount.text = "Asistentes: $updatedCount"
+                                        }
+                                        .addOnFailureListener {
+                                            Toast.makeText(this, "Error al registrar asistencia ❌", Toast.LENGTH_SHORT).show()
+                                        }
+                                }
+                            }
+                            .addOnFailureListener {
+                                Toast.makeText(this, "Error al verificar asistencia", Toast.LENGTH_SHORT).show()
+                            }
+                    } else {
+                        Toast.makeText(this, "Debes iniciar sesión", Toast.LENGTH_SHORT).show()
+                    }
+                }
+
 
                 container.addView(view)
             }

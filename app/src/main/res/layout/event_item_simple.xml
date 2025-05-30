@@ -51,14 +51,32 @@
             android:textSize="14sp"
             android:layout_marginTop="6dp"
             android:layout_marginBottom="12dp" />
+        <TextView
+            android:id="@+id/tvAttendeeCount"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Asistentes: 0"
+            android:textColor="#777"
+            android:textSize="14sp"
+            android:layout_marginTop="4dp"
+            android:layout_marginBottom="8dp" />
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="horizontal"
             android:gravity="end"
-            android:layout_marginTop="8dp"
-            android:layout_marginBottom="-4dp">
+            android:layout_marginTop="8dp">
+
+            <Button
+                android:id="@+id/btnAttendEvent"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="✅ Asistir"
+                android:textSize="14sp"
+                android:backgroundTint="#4CAF50"
+                android:textColor="@android:color/white"
+                android:layout_marginEnd="8dp" />
 
             <Button
                 android:id="@+id/btnEditEvent"
