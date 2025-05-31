@@ -5,6 +5,7 @@ import android.content.Intent
 import android.os.Bundle
 import android.widget.Button
 import android.widget.LinearLayout
+import android.widget.RatingBar
 import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
@@ -66,6 +67,9 @@ class ViewEventsActivity : AppCompatActivity() {
         val btnDelete = view.findViewById<Button>(R.id.btnDeleteEvent)
         val btnAttend = view.findViewById<Button>(R.id.btnAttendEvent)
         val tvAttendeeCount = view.findViewById<TextView>(R.id.tvAttendeeCount)
+        val ratingBar = view.findViewById<RatingBar>(R.id.ratingBar)
+        val tvAverageRating = view.findViewById<TextView>(R.id.tvAverageRating)
+        val user = auth.currentUser
 
         // Cargar contador de asistentes
         loadAttendeeCount(event.id, tvAttendeeCount)
@@ -94,6 +98,21 @@ class ViewEventsActivity : AppCompatActivity() {
             startActivity(intent)
         }
 
+        // Mostrar el promedio actual
+        FirestoreUtil.getAverageRating(event.id) { avg ->
+            tvAverageRating.text = "Promedio: %.1f ★".format(avg)
+        }
+
+        // Guardar calificación del usuario
+        ratingBar.setOnRatingBarChangeListener { _, rating, _ ->
+            if (user != null) {
+                FirestoreUtil.saveRating(event.id, user.uid, rating.toInt()) {
+                    FirestoreUtil.getAverageRating(event.id) { avg ->
+                        tvAverageRating.text = "Promedio: %.1f ★".format(avg)
+                    }
+                }
+            }
+        }
     }
 
     private fun loadAttendeeCount(eventId: String, textView: TextView) {

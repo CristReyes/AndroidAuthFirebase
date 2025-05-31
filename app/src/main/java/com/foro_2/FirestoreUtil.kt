@@ -99,4 +99,28 @@ object FirestoreUtil {
             .addOnSuccessListener { onSuccess() }
             .addOnFailureListener { onFailure(it) }
     }
+
+    fun saveRating(eventId: String, userId: String, rating: Int, onComplete: () -> Unit) {
+        val ratingRef = FirebaseFirestore.getInstance()
+            .collection("events")
+            .document(eventId)
+            .collection("ratings")
+            .document(userId)
+
+        ratingRef.set(mapOf("value" to rating))
+            .addOnSuccessListener { onComplete() }
+    }
+
+    fun getAverageRating(eventId: String, callback: (Double) -> Unit) {
+        FirebaseFirestore.getInstance()
+            .collection("events")
+            .document(eventId)
+            .collection("ratings")
+            .get()
+            .addOnSuccessListener { snapshot ->
+                val ratings = snapshot.mapNotNull { it.getLong("value")?.toDouble() }
+                val average = if (ratings.isNotEmpty()) ratings.average() else 0.0
+                callback(average)
+            }
+    }
 }
