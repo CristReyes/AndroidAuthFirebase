@@ -181,12 +181,7 @@ class HomeActivity : AppCompatActivity() {
     }
 
     private fun loadChartRealtime() {
-        // Limpiar listeners anteriores
-        eventsListener?.remove()
-        attendeesListeners.forEach { it.remove() }
-        attendeesListeners.clear()
-
-        eventsListener = db.collection("events").addSnapshotListener { eventsSnapshot, e ->
+        db.collection("events").addSnapshotListener { eventsSnapshot, e ->
             if (e != null || eventsSnapshot == null) {
                 Toast.makeText(this, "Error al cargar eventos", Toast.LENGTH_SHORT).show()
                 setChart(0f, 0f)
@@ -194,26 +189,26 @@ class HomeActivity : AppCompatActivity() {
             }
 
             val totalEvents = eventsSnapshot.size()
+            var totalAssistances = 0
+            var processed = 0
+
             if (totalEvents == 0) {
                 setChart(0f, 0f)
                 return@addSnapshotListener
             }
 
-            var totalAssistances = 0
-            var processed = 0
+            for (doc in eventsSnapshot.documents) {
+                doc.reference.collection("attendees").addSnapshotListener { attendeesSnapshot, _ ->
+                    totalAssistances += attendeesSnapshot?.size() ?: 0
+                    processed++
 
-            eventsSnapshot.documents.forEach { doc ->
-                val listener = doc.reference.collection("attendees")
-                    .addSnapshotListener { attendeesSnapshot, _ ->
-                        totalAssistances += attendeesSnapshot?.size() ?: 0
-                        processed++
-
-                        if (processed == totalEvents) {
-                            setChart(totalEvents.toFloat(), totalAssistances.toFloat())
-                        }
+                    // Espera a que se procesen todos
+                    if (processed == totalEvents) {
+                        setChart(totalEvents.toFloat(), totalAssistances.toFloat())
                     }
-                attendeesListeners.add(listener)
+                }
             }
         }
     }
+
 }

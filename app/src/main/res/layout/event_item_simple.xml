@@ -51,6 +51,7 @@
             android:textSize="14sp"
             android:layout_marginTop="6dp"
             android:layout_marginBottom="12dp" />
+
         <TextView
             android:id="@+id/tvAttendeeCount"
             android:layout_width="wrap_content"
@@ -66,7 +67,8 @@
             android:layout_height="wrap_content"
             android:orientation="horizontal"
             android:gravity="end"
-            android:layout_marginTop="8dp">
+            android:layout_marginTop="8dp"
+            android:layout_marginBottom="4dp">
 
             <Button
                 android:id="@+id/btnAttendEvent"
@@ -97,5 +99,16 @@
                 android:backgroundTint="#F44336"
                 android:textColor="@android:color/white" />
         </LinearLayout>
+
+        <Button
+            android:id="@+id/btnViewComments"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="💬 Comentarios"
+            android:textSize="14sp"
+            android:backgroundTint="#03A9F4"
+            android:textColor="@android:color/white"
+            android:layout_marginTop="4dp" />
+
     </LinearLayout>
 </androidx.cardview.widget.CardView>

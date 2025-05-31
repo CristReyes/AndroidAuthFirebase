@@ -86,6 +86,14 @@ class ViewEventsActivity : AppCompatActivity() {
         btnAttend.setOnClickListener {
             handleAttendance(event.id, tvAttendeeCount)
         }
+
+        val btnViewComments = view.findViewById<Button>(R.id.btnViewComments)
+        btnViewComments.setOnClickListener {
+            val intent = Intent(this, EventCommentsActivity::class.java)
+            intent.putExtra("EVENT_ID", event.id)
+            startActivity(intent)
+        }
+
     }
 
     private fun loadAttendeeCount(eventId: String, textView: TextView) {
