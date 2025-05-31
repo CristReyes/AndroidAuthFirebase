@@ -4,8 +4,10 @@ import android.content.Intent
 import android.graphics.Color
 import android.os.Bundle
 import android.util.Log
+import android.view.View
 import android.widget.Button
 import android.widget.LinearLayout
+import android.widget.RatingBar
 import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
@@ -105,22 +107,59 @@ class HomeActivity : AppCompatActivity() {
         try {
             val eventView = layoutInflater.inflate(R.layout.event_item_simple, userEventsContainer, false)
 
-            // Configuración de las vistas del evento
+            // Setear textos
             eventView.findViewById<TextView>(R.id.tvEventTitle).text =
                 eventDoc.getString("title") ?: "Evento"
             eventView.findViewById<TextView>(R.id.tvEventDateTime).text =
                 "${eventDoc.getString("date") ?: "-"} | ${eventDoc.getString("time") ?: "-"}"
             eventView.findViewById<TextView>(R.id.tvEventLocation).text =
                 eventDoc.getString("location") ?: "-"
+            eventView.findViewById<TextView>(R.id.tvEventDescription).text =
+                eventDoc.getString("description") ?: ""
 
-            // Listener para cancelar asistencia
-            /*.findViewById<Button>(R.id.btnCancelAttendance).setOnClickListener {
-                showCancelConfirmationDialog(
-                    eventDoc.getString("title") ?: "Evento",
-                    eventId,
-                    userId
-                )
-            }*/
+            // Referencias a botones y rating
+            val btnAttend = eventView.findViewById<Button>(R.id.btnAttendEvent)
+            val btnEdit = eventView.findViewById<Button>(R.id.btnEditEvent)
+            val btnDelete = eventView.findViewById<Button>(R.id.btnDeleteEvent)
+            val btnViewComments = eventView.findViewById<Button>(R.id.btnViewComments)
+            val ratingBar = eventView.findViewById<RatingBar>(R.id.ratingBar)
+            val tvAverageRating = eventView.findViewById<TextView>(R.id.tvAverageRating)
+
+            // Verificar si usuario ya asiste
+            db.collection("events")
+                .document(eventId)
+                .collection("attendees")
+                .document(userId)
+                .get()
+                .addOnSuccessListener { attendeeDoc ->
+                    if (attendeeDoc.exists()) {
+                        // Ocultar controles no necesarios
+                        btnAttend.visibility = View.GONE
+                        btnEdit.visibility = View.GONE
+                        btnDelete.visibility = View.GONE
+                        btnViewComments.visibility = View.GONE
+                        ratingBar.visibility = View.GONE
+                        tvAverageRating.visibility = View.GONE
+
+                        // Opcional: Mostrar botón para cancelar asistencia si quieres
+                        val btnCancel = Button(this).apply {
+                            text = "❌ Cancelar Asistencia"
+                            setBackgroundColor(Color.RED)
+                            setTextColor(Color.WHITE)
+                            setOnClickListener {
+                                AlertDialog.Builder(this@HomeActivity)
+                                    .setTitle("Cancelar Asistencia")
+                                    .setMessage("¿Deseas cancelar tu asistencia a \"${eventDoc.getString("title")}\"?")
+                                    .setPositiveButton("Sí") { _, _ ->
+                                        cancelAttendance(eventId, userId)
+                                    }
+                                    .setNegativeButton("No", null)
+                                    .show()
+                            }
+                        }
+                        //(eventView.findViewById<LinearLayout>(R.id.linearLayoutButtons)).addView(btnCancel)
+                    }
+                }
 
             userEventsContainer.addView(eventView)
         } catch (e: Exception) {
@@ -189,24 +228,30 @@ class HomeActivity : AppCompatActivity() {
             }
 
             val totalEvents = eventsSnapshot.size()
-            var totalAssistances = 0
-            var processed = 0
-
             if (totalEvents == 0) {
                 setChart(0f, 0f)
                 return@addSnapshotListener
             }
 
-            for (doc in eventsSnapshot.documents) {
-                doc.reference.collection("attendees").addSnapshotListener { attendeesSnapshot, _ ->
-                    totalAssistances += attendeesSnapshot?.size() ?: 0
-                    processed++
+            var totalAssistances = 0
+            var processed = 0
 
-                    // Espera a que se procesen todos
-                    if (processed == totalEvents) {
-                        setChart(totalEvents.toFloat(), totalAssistances.toFloat())
+            for (doc in eventsSnapshot.documents) {
+                doc.reference.collection("attendees").get()
+                    .addOnSuccessListener { attendeesSnapshot ->
+                        totalAssistances += attendeesSnapshot.size()
+                        processed++
+
+                        if (processed == totalEvents) {
+                            setChart(totalEvents.toFloat(), totalAssistances.toFloat())
+                        }
                     }
-                }
+                    .addOnFailureListener {
+                        processed++
+                        if (processed == totalEvents) {
+                            setChart(totalEvents.toFloat(), totalAssistances.toFloat())
+                        }
+                    }
             }
         }
     }
