@@ -143,6 +143,7 @@ class HomeActivity : AppCompatActivity() {
             btnViewComments.visibility = View.GONE
             ratingBar.visibility = View.GONE
             btnShare.visibility = View.GONE
+            tvAverageRating.visibility = View.GONE
 
             // Establecer el listener para el conteo de asistentes en tiempo real
             setupRealtimeAttendeeCountListener(eventId, tvAttendeeCount)
