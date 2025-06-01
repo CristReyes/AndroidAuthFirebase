@@ -3,11 +3,48 @@ package com.foro_2
 import android.util.Log
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.ListenerRegistration
+import com.google.firebase.firestore.SetOptions
 
 // Your existing FirestoreUtil object
 object FirestoreUtil {
     private val db = FirebaseFirestore.getInstance()
     private val eventsCollection = db.collection("events")
+    private val usersCollection = db.collection("users") // Add users collection
+
+    // 1. Function to create/update the user document in Firestore
+    fun createUserDocument(
+        userId: String,
+        email: String,
+        role: String = "normal", // Default role
+        onSuccess: () -> Unit,
+        onFailure: (Exception) -> Unit
+    ) {
+        val userMap = hashMapOf(
+            "email" to email,
+            "role" to role
+        )
+
+        usersCollection.document(userId)
+            .set(userMap, SetOptions.merge()) // Use merge to avoid overwriting existing data
+            .addOnSuccessListener { onSuccess() }
+            .addOnFailureListener { e -> onFailure(e) }
+    }
+
+    // 2. Function to get the user's role
+    fun getUserRole(userId: String, onSuccess: (String?) -> Unit, onFailure: (Exception) -> Unit) {
+        usersCollection.document(userId)
+            .get()
+            .addOnSuccessListener { document ->
+                if (document.exists()) {
+                    val role = document.getString("role")
+                    onSuccess(role)
+                } else {
+                    onSuccess(null) // User document doesn't exist
+                }
+            }
+            .addOnFailureListener { e -> onFailure(e) }
+    }
+
 
     // Función para escuchar cambios en los eventos
     fun listenToEvents(onEventsChanged: (List<Event>) -> Unit): ListenerRegistration {
@@ -80,8 +117,8 @@ object FirestoreUtil {
     // Resto de tus funciones existentes (addEvent, deleteEvent, etc.)
     fun addEvent(event: Event, onSuccess: () -> Unit, onFailure: (Exception) -> Unit) {
         val docRef = eventsCollection.document()
-        event.id = docRef.id
-        docRef.set(event.toMap()) // This will now work
+        event.id = docRef.id // Set the document ID on the event object
+        docRef.set(event.toMap()) // Use the toMap() function
             .addOnSuccessListener { onSuccess() }
             .addOnFailureListener { onFailure(it) }
     }
@@ -93,15 +130,16 @@ object FirestoreUtil {
             .addOnFailureListener { onFailure(it) }
     }
 
+    // Update event function
     fun updateEvent(event: Event, onSuccess: () -> Unit, onFailure: (Exception) -> Unit) {
         eventsCollection.document(event.id)
-            .set(event.toMap()) // This will now work
+            .set(event.toMap()) // Use the toMap() function
             .addOnSuccessListener { onSuccess() }
             .addOnFailureListener { onFailure(it) }
     }
 
     fun saveRating(eventId: String, userId: String, rating: Int, onComplete: () -> Unit) {
-        val ratingRef = FirebaseFirestore.getInstance()
+        val ratingRef = db
             .collection("events")
             .document(eventId)
             .collection("ratings")
@@ -112,8 +150,7 @@ object FirestoreUtil {
     }
 
     fun getAverageRating(eventId: String, callback: (Double) -> Unit) {
-        FirebaseFirestore.getInstance()
-            .collection("events")
+        db.collection("events")
             .document(eventId)
             .collection("ratings")
             .get()

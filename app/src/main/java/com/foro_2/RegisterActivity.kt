@@ -48,7 +48,7 @@ class RegisterActivity : AppCompatActivity() {
                 }
 
             } else {
-                Toast.makeText(this, "Empty Fields Are not Allowed !!", Toast.LENGTH_SHORT).show()
+                Toast.makeText(this, "¡Campos vacios no estan permitidos!", Toast.LENGTH_SHORT).show()
             }
         }
     }

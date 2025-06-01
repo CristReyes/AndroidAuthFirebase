@@ -11,6 +11,7 @@
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:layout_marginTop="32dp"
         android:orientation="vertical"
         android:padding="16dp">
 
@@ -18,116 +19,116 @@
             android:id="@+id/tvEventTitle"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_marginBottom="4dp"
             android:text="Título del Evento"
-            android:textSize="18sp"
-            android:textStyle="bold"
             android:textColor="#212121"
-            android:layout_marginBottom="4dp" />
+            android:textSize="18sp"
+            android:textStyle="bold" />
 
         <TextView
             android:id="@+id/tvEventDateTime"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_marginBottom="2dp"
             android:text="Fecha | Hora"
             android:textColor="#666"
-            android:textSize="14sp"
-            android:layout_marginBottom="2dp" />
+            android:textSize="14sp" />
 
         <TextView
             android:id="@+id/tvEventLocation"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_marginBottom="2dp"
             android:text="Ubicación"
             android:textColor="#666"
-            android:textSize="14sp"
-            android:layout_marginBottom="2dp" />
+            android:textSize="14sp" />
 
         <TextView
             android:id="@+id/tvEventDescription"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:layout_marginTop="6dp"
+            android:layout_marginBottom="12dp"
             android:text="Descripción"
             android:textColor="#444"
-            android:textSize="14sp"
-            android:layout_marginTop="6dp"
-            android:layout_marginBottom="12dp" />
+            android:textSize="14sp" />
 
         <TextView
             android:id="@+id/tvAttendeeCount"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_marginTop="4dp"
+            android:layout_marginBottom="8dp"
             android:text="Asistentes: 0"
             android:textColor="#777"
-            android:textSize="14sp"
-            android:layout_marginTop="4dp"
-            android:layout_marginBottom="8dp" />
+            android:textSize="14sp" />
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:gravity="end"
             android:layout_marginTop="8dp"
-            android:layout_marginBottom="4dp">
+            android:layout_marginBottom="4dp"
+            android:gravity="end"
+            android:orientation="horizontal">
 
             <Button
                 android:id="@+id/btnAttendEvent"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="✅ Asistir"
-                android:textSize="14sp"
+                android:layout_marginEnd="8dp"
                 android:backgroundTint="#4CAF50"
+                android:text="✅ Asistir"
                 android:textColor="@android:color/white"
-                android:layout_marginEnd="8dp" />
+                android:textSize="14sp" />
 
             <Button
                 android:id="@+id/btnEditEvent"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="✏️ Editar"
-                android:textSize="14sp"
+                android:layout_marginEnd="8dp"
                 android:backgroundTint="#FF9800"
+                android:text="✏️ Editar"
                 android:textColor="@android:color/white"
-                android:layout_marginEnd="8dp" />
+                android:textSize="14sp" />
 
             <Button
                 android:id="@+id/btnDeleteEvent"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="🗑️ Eliminar"
-                android:textSize="14sp"
                 android:backgroundTint="#F44336"
-                android:textColor="@android:color/white" />
+                android:text="🗑️ Eliminar"
+                android:textColor="@android:color/white"
+                android:textSize="14sp" />
         </LinearLayout>
 
         <Button
             android:id="@+id/btnViewComments"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="💬 Comentarios"
-            android:textSize="14sp"
+            android:layout_marginTop="4dp"
             android:backgroundTint="#03A9F4"
+            android:text="💬 Comentarios"
             android:textColor="@android:color/white"
-            android:layout_marginTop="4dp" />
+            android:textSize="14sp" />
 
         <RatingBar
             android:id="@+id/ratingBar"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
             android:numStars="5"
-            android:stepSize="1.0"
             android:rating="0"
-            android:layout_marginTop="8dp" />
+            android:stepSize="1.0" />
 
         <TextView
             android:id="@+id/tvAverageRating"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Promedio: -"
-            android:textSize="14sp"
-            android:textColor="#555"
             android:layout_marginTop="4dp"
-            android:layout_marginBottom="8dp" />
+            android:layout_marginBottom="8dp"
+            android:text="Promedio: -"
+            android:textColor="#555"
+            android:textSize="14sp" />
 
         <Button
             android:id="@+id/btnShare"

@@ -3,12 +3,12 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#F0F2F5"
     android:padding="16dp">
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:layout_marginTop="32dp"
         android:orientation="vertical">
 
         <!-- Bienvenida -->
@@ -16,11 +16,11 @@
             android:id="@+id/welcomeText"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_marginBottom="16dp"
             android:text="Bienvenido, usuario"
-            android:textSize="22sp"
-            android:textStyle="bold"
             android:textColor="#333"
-            android:layout_marginBottom="16dp" />
+            android:textSize="22sp"
+            android:textStyle="bold" />
 
         <!-- Gráfico de participación -->
         <com.github.mikephil.charting.charts.PieChart
@@ -46,10 +46,10 @@
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
+                    android:layout_marginBottom="8dp"
                     android:text="Gestión de Eventos"
                     android:textSize="18sp"
-                    android:textStyle="bold"
-                    android:layout_marginBottom="8dp" />
+                    android:textStyle="bold" />
 
                 <Button
                     android:id="@+id/btnCreateEvent"
@@ -61,8 +61,8 @@
                     android:id="@+id/btnViewEvents"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="👀 Ver Eventos"
-                    android:layout_marginTop="8dp" />
+                    android:layout_marginTop="8dp"
+                    android:text="👀 Ver Eventos" />
             </LinearLayout>
         </androidx.cardview.widget.CardView>
 
@@ -78,18 +78,18 @@
                 android:id="@+id/userEventsContainer"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:background="@android:color/white"
                 android:orientation="vertical"
-                android:padding="16dp"
-                android:background="@android:color/white">
+                android:padding="16dp">
 
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
+                    android:layout_marginBottom="12dp"
                     android:text="📅 Mis Eventos"
-                    android:textSize="18sp"
-                    android:textStyle="bold"
                     android:textColor="#333"
-                    android:layout_marginBottom="12dp" />
+                    android:textSize="18sp"
+                    android:textStyle="bold" />
 
                 <!-- Aquí se insertarán los eventos dinámicamente -->
 
@@ -112,10 +112,10 @@
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
+                    android:layout_marginBottom="8dp"
                     android:text="Sesión"
                     android:textSize="18sp"
-                    android:textStyle="bold"
-                    android:layout_marginBottom="8dp" />
+                    android:textStyle="bold" />
 
                 <Button
                     android:id="@+id/signOutButton"
