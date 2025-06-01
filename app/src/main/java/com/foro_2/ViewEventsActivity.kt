@@ -113,6 +113,21 @@ class ViewEventsActivity : AppCompatActivity() {
                 }
             }
         }
+
+        // Accionar el boton de compartir evento
+        val btnShare = view.findViewById<Button>(R.id.btnShare) // Obtén la referencia al botón
+
+        btnShare.setOnClickListener {
+            // Aquí ya tienes el objeto 'event', lo cual es más conveniente
+            val title = event.title
+            val date = event.date
+            val time = event.time
+            val location = event.location
+            val description = event.description
+            val userEmail = auth.currentUser?.email // Obtener el correo del usuario logueado
+
+            shareEvent(title, date, time, location, description, userEmail)
+        }
     }
 
     private fun loadAttendeeCount(eventId: String, textView: TextView) {
@@ -167,5 +182,35 @@ class ViewEventsActivity : AppCompatActivity() {
                 Toast.makeText(this, "Error: ${it.message}", Toast.LENGTH_SHORT).show()
             }
         )
+    }
+
+    //Acción de compartir el evento
+
+    private fun shareEvent(title: String, date: String, time: String, location: String, description: String, userEmail: String?) {
+        // Construir el texto a compartir
+        val shareText = StringBuilder()
+        shareText.append("¡No te pierdas este evento!\n\n")
+        shareText.append("Título: $title\n")
+        shareText.append("Fecha: $date\n")
+        shareText.append("Hora: $time\n")
+        shareText.append("Ubicación: $location\n\n")
+        shareText.append("Descripción:\n$description\n\n")
+        shareText.append("¡Únete a la comunidad!\n")
+
+        val shareIntent = Intent(Intent.ACTION_SEND).apply {
+            type = "text/plain" // Tipo de contenido que se compartirá
+            putExtra(Intent.EXTRA_SUBJECT, "Invita a un evento: $title") // Asunto para correos, etc.
+            putExtra(Intent.EXTRA_TEXT, shareText.toString()) // El cuerpo del mensaje
+        }
+
+        // Para compartir específicamente por correo, puedes añadir un destinatario por defecto (el usuario actual)
+        // Aunque el selector de compartir ya permite elegir Gmail/Outlook, esto pre-rellena el 'Para'.
+        if (!userEmail.isNullOrEmpty()) {
+            shareIntent.putExtra(Intent.EXTRA_EMAIL, arrayOf(userEmail))
+        }
+
+        // Crea un chooser para que el usuario seleccione la aplicación
+        val chooser = Intent.createChooser(shareIntent, "Compartir evento a través de...")
+        startActivity(chooser)
     }
 }

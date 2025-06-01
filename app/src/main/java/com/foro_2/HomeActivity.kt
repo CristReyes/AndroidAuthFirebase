@@ -28,7 +28,8 @@ class HomeActivity : AppCompatActivity() {
     private lateinit var userEventsContainer: LinearLayout
     private val db = FirebaseFirestore.getInstance()
     private var eventsListener: ListenerRegistration? = null
-    private val attendeesListeners = mutableListOf<ListenerRegistration>()
+    private val attendeesListeners = mutableListOf<ListenerRegistration>() // Para limpiar los listeners de asistentes
+    private val eventViewsMap = mutableMapOf<String, View>() // Para mapear eventId a su vista
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -39,14 +40,12 @@ class HomeActivity : AppCompatActivity() {
         userEventsContainer = binding.userEventsContainer
 
         setupUI()
-        loadChartRealtime()
+        loadChartRealtime() // Este ya maneja el gráfico en tiempo real
     }
 
     private fun setupUI() {
-        // Configuración de la interfaz de usuario
         binding.welcomeText.text = "Hola, ${firebaseAuth.currentUser?.email ?: "Usuario"} 👋"
 
-        // Listeners de botones
         binding.btnCreateEvent.setOnClickListener {
             startActivity(Intent(this, CreateEventActivity::class.java))
         }
@@ -64,48 +63,58 @@ class HomeActivity : AppCompatActivity() {
 
     override fun onResume() {
         super.onResume()
-        reloadUserEvents()
+        // Aquí cargamos los eventos y establecemos los listeners para el conteo de asistentes
+        loadUserEventsAndAttendeeCounts()
     }
 
     override fun onDestroy() {
         super.onDestroy()
-        // Limpieza de listeners
+        // Es crucial remover todos los listeners para evitar fugas de memoria
         eventsListener?.remove()
         attendeesListeners.forEach { it.remove() }
         attendeesListeners.clear()
+        eventViewsMap.clear() // Limpiar el mapa también
     }
 
-    private fun reloadUserEvents() {
+    private fun loadUserEventsAndAttendeeCounts() {
         val user = firebaseAuth.currentUser ?: return
-        userEventsContainer.removeAllViews()
+        userEventsContainer.removeAllViews() // Limpiamos la vista antes de añadir nuevos eventos
+        attendeesListeners.forEach { it.remove() } // Removemos listeners antiguos de asistentes
+        attendeesListeners.clear() // Limpiamos la lista de listeners
+        eventViewsMap.clear() // Limpiamos el mapa de vistas
 
         db.collection("events")
-            .get()
+            .get() // Obtener todos los eventos una vez
             .addOnSuccessListener { eventsSnapshot ->
                 eventsSnapshot.forEach { eventDoc ->
                     val eventId = eventDoc.id
 
+                    // Solo añadimos eventos a los que el usuario actual asiste
                     db.collection("events").document(eventId)
                         .collection("attendees").document(user.uid)
-                        .get()
+                        .get() // Verificamos si el usuario actual asiste (una vez)
                         .addOnSuccessListener { attendeeDoc ->
                             if (attendeeDoc.exists()) {
+                                // Si el usuario asiste, añadimos la vista del evento
                                 addEventToView(eventDoc, eventId, user.uid)
                             }
                         }
                         .addOnFailureListener {
-                            Toast.makeText(this, "Error al verificar asistencia", Toast.LENGTH_SHORT).show()
+                            Log.e("HomeActivity", "Error al verificar asistencia del usuario para $eventId", it)
+                            // No mostrar Toast aquí para cada error potencial, solo si es crítico
                         }
                 }
             }
-            .addOnFailureListener {
-                Toast.makeText(this, "Error al cargar eventos", Toast.LENGTH_SHORT).show()
+            .addOnFailureListener { e ->
+                Toast.makeText(this, "Error al cargar eventos: ${e.message}", Toast.LENGTH_SHORT).show()
+                Log.e("HomeActivity", "Error al cargar eventos en HomeActivity", e)
             }
     }
 
     private fun addEventToView(eventDoc: QueryDocumentSnapshot, eventId: String, userId: String) {
         try {
             val eventView = layoutInflater.inflate(R.layout.event_item_simple, userEventsContainer, false)
+            eventView.tag = eventId // Asigna un tag para identificar la vista del evento
 
             // Setear textos
             eventView.findViewById<TextView>(R.id.tvEventTitle).text =
@@ -117,57 +126,56 @@ class HomeActivity : AppCompatActivity() {
             eventView.findViewById<TextView>(R.id.tvEventDescription).text =
                 eventDoc.getString("description") ?: ""
 
-            // Referencias a botones y rating
+            // Referencias a botones y rating (mantener la visibilidad original si no hay cambios)
             val btnAttend = eventView.findViewById<Button>(R.id.btnAttendEvent)
             val btnEdit = eventView.findViewById<Button>(R.id.btnEditEvent)
             val btnDelete = eventView.findViewById<Button>(R.id.btnDeleteEvent)
             val btnViewComments = eventView.findViewById<Button>(R.id.btnViewComments)
             val ratingBar = eventView.findViewById<RatingBar>(R.id.ratingBar)
             val tvAverageRating = eventView.findViewById<TextView>(R.id.tvAverageRating)
+            val tvAttendeeCount = eventView.findViewById<TextView>(R.id.tvAttendeeCount) // TextView para el conteo de asistentes
+            val btnShare = eventView.findViewById<TextView>(R.id.btnShare)
 
-            // Verificar si usuario ya asiste
-            db.collection("events")
-                .document(eventId)
-                .collection("attendees")
-                .document(userId)
-                .get()
-                .addOnSuccessListener { attendeeDoc ->
-                    if (attendeeDoc.exists()) {
-                        // Ocultar controles no necesarios
-                        btnAttend.visibility = View.GONE
-                        btnEdit.visibility = View.GONE
-                        btnDelete.visibility = View.GONE
-                        btnViewComments.visibility = View.GONE
-                        ratingBar.visibility = View.GONE
-                        tvAverageRating.visibility = View.GONE
+            // Ocultar los controles no necesarios para eventos a los que el usuario ya asiste
+            btnAttend.visibility = View.GONE
+            btnEdit.visibility = View.GONE
+            btnDelete.visibility = View.GONE
+            btnViewComments.visibility = View.GONE
+            ratingBar.visibility = View.GONE
+            btnShare.visibility = View.GONE
 
-                        // Opcional: Mostrar botón para cancelar asistencia si quieres
-                        val btnCancel = Button(this).apply {
-                            text = "❌ Cancelar Asistencia"
-                            setBackgroundColor(Color.RED)
-                            setTextColor(Color.WHITE)
-                            setOnClickListener {
-                                AlertDialog.Builder(this@HomeActivity)
-                                    .setTitle("Cancelar Asistencia")
-                                    .setMessage("¿Deseas cancelar tu asistencia a \"${eventDoc.getString("title")}\"?")
-                                    .setPositiveButton("Sí") { _, _ ->
-                                        cancelAttendance(eventId, userId)
-                                    }
-                                    .setNegativeButton("No", null)
-                                    .show()
-                            }
-                        }
-                        //(eventView.findViewById<LinearLayout>(R.id.linearLayoutButtons)).addView(btnCancel)
-                    }
-                }
+            // Establecer el listener para el conteo de asistentes en tiempo real
+            setupRealtimeAttendeeCountListener(eventId, tvAttendeeCount)
 
             userEventsContainer.addView(eventView)
+            eventViewsMap[eventId] = eventView // Guardar la vista en el mapa
         } catch (e: Exception) {
-            Log.e("HomeActivity", "Error al inflar layout de evento", e)
+            Log.e("HomeActivity", "Error al inflar layout de evento o configurar vista", e)
             Toast.makeText(this, "Error al mostrar evento", Toast.LENGTH_SHORT).show()
         }
     }
 
+    private fun setupRealtimeAttendeeCountListener(eventId: String, textView: TextView) {
+        val listener = db.collection("events").document(eventId)
+            .collection("attendees")
+            .addSnapshotListener { attendeesSnapshot, e ->
+                if (e != null) {
+                    Log.w("HomeActivity", "Error al escuchar conteo de asistentes para $eventId", e)
+                    textView.text = "Asistentes: -"
+                    return@addSnapshotListener
+                }
+
+                if (attendeesSnapshot != null) {
+                    val count = attendeesSnapshot.size()
+                    textView.text = "Asistentes: $count"
+                } else {
+                    textView.text = "Asistentes: 0"
+                }
+            }
+        attendeesListeners.add(listener) // Añadir a la lista para limpiar en onDestroy
+    }
+
+    // Mantener la función showCancelConfirmationDialog si es usada en otro lugar, pero no se llama aquí.
     private fun showCancelConfirmationDialog(title: String, eventId: String, userId: String) {
         AlertDialog.Builder(this)
             .setTitle("Cancelar Asistencia")
@@ -187,10 +195,17 @@ class HomeActivity : AppCompatActivity() {
             .delete()
             .addOnSuccessListener {
                 Toast.makeText(this, "Asistencia cancelada", Toast.LENGTH_SHORT).show()
-                reloadUserEvents()
+                // La vista se actualizará automáticamente si el usuario deja de asistir
+                // debido al listener de asistentes o se recargará en onResume.
+                // Si el evento desaparece de la vista del usuario, remuévelo explícitamente.
+                eventViewsMap[eventId]?.let { viewToRemove ->
+                    userEventsContainer.removeView(viewToRemove)
+                    eventViewsMap.remove(eventId)
+                }
             }
-            .addOnFailureListener {
-                Toast.makeText(this, "Error al cancelar asistencia", Toast.LENGTH_SHORT).show()
+            .addOnFailureListener { e ->
+                Toast.makeText(this, "Error al cancelar asistencia: ${e.message}", Toast.LENGTH_SHORT).show()
+                Log.e("HomeActivity", "Error al cancelar asistencia", e)
             }
     }
 
@@ -220,9 +235,10 @@ class HomeActivity : AppCompatActivity() {
     }
 
     private fun loadChartRealtime() {
+        // Este listener ya está configurado para el tiempo real para el gráfico
         db.collection("events").addSnapshotListener { eventsSnapshot, e ->
             if (e != null || eventsSnapshot == null) {
-                Toast.makeText(this, "Error al cargar eventos", Toast.LENGTH_SHORT).show()
+                Toast.makeText(this, "Error al cargar eventos para el gráfico", Toast.LENGTH_SHORT).show()
                 setChart(0f, 0f)
                 return@addSnapshotListener
             }
@@ -237,6 +253,10 @@ class HomeActivity : AppCompatActivity() {
             var processed = 0
 
             for (doc in eventsSnapshot.documents) {
+                // Aquí usamos .get() para obtener el conteo de asistentes para el gráfico.
+                // Si quisieras que el gráfico fuera extremadamente reactivo a cada cambio individual,
+                // necesitarías listeners anidados o una lógica más compleja, pero para el gráfico
+                // general, un `get()` dentro del listener de eventos suele ser suficiente.
                 doc.reference.collection("attendees").get()
                     .addOnSuccessListener { attendeesSnapshot ->
                         totalAssistances += attendeesSnapshot.size()
@@ -255,5 +275,4 @@ class HomeActivity : AppCompatActivity() {
             }
         }
     }
-
 }
