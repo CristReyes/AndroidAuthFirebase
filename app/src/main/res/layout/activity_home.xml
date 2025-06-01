@@ -3,6 +3,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="#07869B"
     android:padding="16dp">
 
     <LinearLayout
@@ -18,24 +19,24 @@
             android:layout_height="wrap_content"
             android:layout_marginBottom="16dp"
             android:text="Bienvenido, usuario"
-            android:textColor="#333"
+            android:textColor="#FFFFFF"
             android:textSize="22sp"
             android:textStyle="bold" />
 
         <!-- Gráfico de participación -->
+
+        <!-- Gestión de Eventos -->
         <com.github.mikephil.charting.charts.PieChart
             android:id="@+id/pieChart"
             android:layout_width="match_parent"
             android:layout_height="300dp"
             android:layout_marginBottom="24dp" />
 
-        <!-- Gestión de Eventos -->
         <androidx.cardview.widget.CardView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginBottom="16dp"
-            app:cardCornerRadius="12dp"
-            app:cardElevation="6dp">
+            app:cardCornerRadius="12dp">
 
             <LinearLayout
                 android:layout_width="match_parent"
@@ -48,6 +49,7 @@
                     android:layout_height="wrap_content"
                     android:layout_marginBottom="8dp"
                     android:text="Gestión de Eventos"
+                    android:textColor="#000000"
                     android:textSize="18sp"
                     android:textStyle="bold" />
 
@@ -67,41 +69,43 @@
         </androidx.cardview.widget.CardView>
 
         <!-- Mis Eventos -->
+
         <androidx.cardview.widget.CardView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginBottom="16dp"
-            app:cardCornerRadius="16dp"
-            app:cardElevation="8dp">
+            app:cardCornerRadius="16dp">
 
             <LinearLayout
                 android:id="@+id/userEventsContainer"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:layout_marginTop="32dp"
                 android:background="@android:color/white"
                 android:orientation="vertical"
                 android:padding="16dp">
 
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginBottom="12dp"
-                    android:text="📅 Mis Eventos"
-                    android:textColor="#333"
-                    android:textSize="18sp"
-                    android:textStyle="bold" />
-
                 <!-- Aquí se insertarán los eventos dinámicamente -->
 
             </LinearLayout>
+
+            <TextView
+                android:id="@+id/myEventsTitle"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="16dp"
+                android:layout_marginTop="8dp"
+                android:text="📅 Mis Eventos"
+                android:textColor="#000000"
+                android:textSize="18sp"
+                android:textStyle="bold" />
         </androidx.cardview.widget.CardView>
 
         <!-- Cerrar Sesión -->
         <androidx.cardview.widget.CardView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            app:cardCornerRadius="12dp"
-            app:cardElevation="6dp">
+            app:cardCornerRadius="12dp">
 
             <LinearLayout
                 android:layout_width="match_parent"
@@ -114,6 +118,7 @@
                     android:layout_height="wrap_content"
                     android:layout_marginBottom="8dp"
                     android:text="Sesión"
+                    android:textColor="#000000"
                     android:textSize="18sp"
                     android:textStyle="bold" />
 

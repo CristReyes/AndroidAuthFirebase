@@ -1,44 +1,73 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="#07869B"
     android:gravity="center"
     android:orientation="vertical"
     android:padding="16dp">
 
-    <EditText
-        android:id="@+id/newEmail"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:fontFamily="sans-serif"
-        android:hint="Email"
-        android:inputType="textEmailAddress" />
-
-    <EditText
-        android:id="@+id/newPass"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="8dp"
-        android:fontFamily="sans-serif"
-        android:hint="Contraseña"
-        android:inputType="textPassword" />
-
-    <Button
-        android:id="@+id/newRegisterButton"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="16dp"
-        android:fontFamily="sans-serif-black"
-        android:text="Registrarse" />
-
     <TextView
-        android:id="@+id/alreadyUser"
+        android:id="@+id/textView"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="32px"
-        android:fontFamily="sans-serif"
-        android:text="¿Ya tienes cuenta?, inicia sesión"
-        android:textAlignment="center" />
+        android:gravity="center|top"
+        android:text="REGISTRO"
+        android:textColor="#FAFAFA"
+        android:textSize="24sp"
+        android:textStyle="bold" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="365dp"
+        android:layout_gravity="center"
+        android:baselineAligned="false"
+        android:gravity="center"
+        android:orientation="vertical">
+
+        <EditText
+            android:id="@+id/newPass"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:backgroundTint="#FFFFFF"
+            android:fontFamily="sans-serif"
+            android:hint="Contraseña"
+            android:inputType="textPassword"
+            android:textColor="#FFFFFF"
+            android:textColorHint="#FFFFFF" />
+
+        <EditText
+            android:id="@+id/newEmail"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:backgroundTint="#FFFFFF"
+            android:fontFamily="sans-serif"
+            android:hint="Email"
+            android:inputType="textEmailAddress"
+            android:textColor="#FFFFFF"
+            android:textColorHint="#FFFFFF" />
+
+        <Button
+            android:id="@+id/newRegisterButton"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:background="#FFFFFF"
+            android:fontFamily="sans-serif-black"
+            android:text="Registrarse" />
+
+        <TextView
+            android:id="@+id/alreadyUser"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="32px"
+            android:fontFamily="sans-serif"
+            android:text="¿Ya tienes cuenta?, inicia sesión"
+            android:textAlignment="center"
+            android:textColor="#FAFAFA" />
+    </LinearLayout>
 
 </LinearLayout>

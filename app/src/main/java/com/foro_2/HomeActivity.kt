@@ -26,6 +26,7 @@ class HomeActivity : AppCompatActivity() {
     private lateinit var binding: ActivityHomeBinding
     private lateinit var firebaseAuth: FirebaseAuth
     private lateinit var userEventsContainer: LinearLayout
+    private lateinit var myEventsTitle: TextView
     private val db = FirebaseFirestore.getInstance()
     private var eventsListener: ListenerRegistration? = null
     private val attendeesListeners = mutableListOf<ListenerRegistration>()
@@ -40,6 +41,7 @@ class HomeActivity : AppCompatActivity() {
         setContentView(binding.root)
 
         firebaseAuth = FirebaseAuth.getInstance()
+        myEventsTitle = binding.myEventsTitle
         userEventsContainer = binding.userEventsContainer
 
         setupUI()
@@ -125,9 +127,20 @@ class HomeActivity : AppCompatActivity() {
         attendeesListeners.clear()
         eventViewsMap.clear()
 
+        var eventFound = false
+
         db.collection("events")
             .get()
             .addOnSuccessListener { eventsSnapshot ->
+                val totalEvents = eventsSnapshot.size()
+                var processedEvents = 0
+
+                if (totalEvents == 0) { // If there are no events at all, hide everything immediately
+                    userEventsContainer.visibility = View.GONE
+                    //myEventsTitle.visibility = View.GONE
+                    return@addOnSuccessListener // Exit the success listener early
+                }
+
                 eventsSnapshot.forEach { eventDoc ->
                     val eventId = eventDoc.id
 
@@ -137,18 +150,35 @@ class HomeActivity : AppCompatActivity() {
                         .addOnSuccessListener { attendeeDoc ->
                             if (attendeeDoc.exists()) {
                                 addEventToView(eventDoc, eventId, user.uid)
+                                eventFound = true
                             }
+                            processedEvents++
+                            checkFinalVisibility(totalEvents, processedEvents, eventFound)
                         }
                         .addOnFailureListener {
-                            Log.e("HomeActivity", "Error al verificar asistencia del usuario para $eventId", it)
+                            processedEvents++
+                            checkFinalVisibility(totalEvents, processedEvents, eventFound)
                         }
                 }
             }
             .addOnFailureListener { e ->
                 Toast.makeText(this, "Error al cargar eventos: ${e.message}", Toast.LENGTH_SHORT).show()
                 Log.e("HomeActivity", "Error al cargar eventos en HomeActivity", e)
+                userEventsContainer.visibility = View.GONE
+                //myEventsTitle.visibility = View.GONE // Ensure title is hidden on failure
             }
     }
+
+    // Oculta/Muestra bloque de eventos a los cuales a confirmado asistencia
+    fun checkFinalVisibility(total: Int, processed: Int, found: Boolean) {
+        if (processed == total) {
+            val visibility = if (found) View.VISIBLE else View.GONE
+            userEventsContainer.visibility = visibility
+            myEventsTitle.visibility = visibility
+        }
+    }
+
+
 
     private fun addEventToView(eventDoc: QueryDocumentSnapshot, eventId: String, userId: String) {
         try {

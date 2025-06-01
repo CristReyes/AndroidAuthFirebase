@@ -1,10 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:orientation="vertical"
-    android:padding="16dp"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#F0F2F5">
+    android:background="#07869B"
+    android:orientation="vertical"
+    android:padding="16dp">
 
     <ScrollView
         android:layout_width="match_parent"
@@ -23,18 +24,20 @@
         android:id="@+id/etComment"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:hint="Escribe un comentario..."
-        android:backgroundTint="#2196F3"
-        android:padding="12dp"
         android:layout_marginTop="8dp"
-        android:layout_marginBottom="8dp" />
+        android:layout_marginBottom="8dp"
+        android:backgroundTint="@color/white"
+        android:hint="Escribe un comentario..."
+        android:padding="12dp"
+        android:textColor="@color/white"
+        tools:textColorHint="@color/white" />
 
     <Button
         android:id="@+id/btnSubmitComment"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="💬 Enviar Comentario"
         android:backgroundTint="#4CAF50"
+        android:text="💬 Enviar Comentario"
         android:textColor="@android:color/white" />
 
     <Button

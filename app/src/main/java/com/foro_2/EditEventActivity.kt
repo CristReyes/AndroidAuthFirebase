@@ -29,6 +29,9 @@ class EditEventActivity : AppCompatActivity() {
         // Cambiar texto del botón principal
         binding.btnCreateEvent.text = "Actualizar Evento"
 
+        // Cambiar texto del titulo de la vista
+        binding.etTitleView.text = "Actualizar Evento"
+
         // Cargar datos del evento
         loadEventData()
 
